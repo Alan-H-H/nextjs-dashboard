@@ -48,6 +48,72 @@ export async function fetchLatestInvoices() {
   }
 }
 
+export async function fetchNumberOfInvoices() {
+  try{
+  const invoiceCountPromise = await sql`SELECT COUNT(*) FROM invoices`;
+  
+  const numberOfInvoices = invoiceCountPromise.rows[0].count || 0;
+
+  return numberOfInvoices.toString();
+
+} catch (error) {
+  console.error('Database Error:', error);
+  throw new Error('Failed to fetch card data.');
+}
+}
+
+export async function fetchTotalPendingInvoices(){
+  try{
+  const invoiceStatusPromise = await sql`SELECT SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending" FROM invoices`;
+
+  const totalPendingInvoices = invoiceStatusPromise.rows[0].pending || 0;
+
+  const formattedTotal = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(totalPendingInvoices);
+  
+  return formattedTotal;
+
+  }catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
+
+export async function fetchTotalPaidInvoices() {
+  try {
+    const invoiceStatusPromise = await sql`SELECT SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid" FROM invoices`;
+
+    const totalPaidInvoices = invoiceStatusPromise.rows[0].paid || 0;
+
+    // Convert the number to currency format
+    const formattedTotal = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(totalPaidInvoices);
+
+    return formattedTotal; // Return the formatted string
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
+
+export async function fetchNumberOfCostumers() {
+  try {
+    const customerCountPromise = await sql`SELECT COUNT(*) FROM customers`;
+
+    const numberOfCustomers = customerCountPromise.rows[0].count || 0;
+
+    return numberOfCustomers.toString(); // Return the number as a string directly
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
+
+
 export async function fetchCardData() {
   try {
     // You can probably combine these into a single SQL query
